@@ -92,8 +92,8 @@
       <plugins.ehcache-latest/>
       <plugins.hazelcast/>
       <plugins.hazelcast-latest/>
-      <plugins.hazelcast-enterprise/>
-      <plugins.hazelcast-enterprise-latest/>
+      <!-- <plugins.hazelcast-enterprise/> -->
+      <!-- <plugins.hazelcast-enterprise-latest/> -->
       <plugins.redis/>
       <plugins.redis-latest/>
       <plugins.redis-enterprise/>
@@ -346,7 +346,7 @@
             <plugins.hazelcast>hazelcast2,hazelcast36,hazelcast37,hazelcast38,hazelcast39,hazelcast310,hazelcast312,${plugins.hazelcast-latest}</plugins.hazelcast>
          </properties>
       </profile>
-      <profile>
+      <!-- <profile>
          <id>hazelcast-enterprise</id>
          <activation>
             <property>
@@ -358,10 +358,10 @@
             <module>../plugins/hazelcast-enterprise312</module>
          </modules>
          <properties>
-            <plugins.hazelcast-enterprise-latest>hazelcast-enterprise312</plugins.hazelcast-enterprise-latest>
+            <plugins.hazelcast-enterprise-latest>hazelcast-enterprise312</plugins.hazelcast-enterprise-latest> 
             <plugins.hazelcast-enterprise>hazelcast-enterprise310,hazelcast-enterprise310,hazelcast-enterprise312,${plugins.hazelcast-enterprise-latest}</plugins.hazelcast-enterprise>
          </properties>
-      </profile>
+      </profile> -->
       <profile>
          <id>redis</id>
          <activation>
@@ -851,10 +851,16 @@
          <version>1.6.2</version>
          <scope>test</scope>
       </dependency>
+     
+
    </dependencies>
 
    <repositories>
       <!-- basic JBoss repository -->
+      <repository>
+         <id>Main Maven Repo</id>
+         <url>https://repo1.maven.org/maven2/</url>
+      </repository>
       <repository>
          <id>jboss-public-repository-group</id>
          <url>http://repository.jboss.org/nexus/content/groups/public-jboss</url>
@@ -866,17 +872,18 @@
    </repositories>
 
    <pluginRepositories>
-      <pluginRepository>
-         <id>Main Maven Repo</id>
-         <url>http://repo1.maven.org/maven2/</url>
-      </pluginRepository>
-      <pluginRepository>
+      
+      <!-- <pluginRepository>
          <id>snapshots.repository.codehaus.org</id>
          <url>http://snapshots.repository.codehaus.org</url>
-      </pluginRepository>
+      </pluginRepository> -->
       <pluginRepository>
          <id>jboss-public-repository-group</id>
          <url>http://repository.jboss.org/nexus/content/groups/public-jboss</url>
+      </pluginRepository>
+      <pluginRepository>
+         <id>Main Maven Repo</id>
+         <url>https://repo1.maven.org/maven2/</url>
       </pluginRepository>
    </pluginRepositories>
 
