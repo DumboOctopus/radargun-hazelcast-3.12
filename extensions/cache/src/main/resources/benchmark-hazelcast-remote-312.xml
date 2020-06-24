@@ -3,8 +3,8 @@
     <master bindAddress="${master.address:127.0.0.1}" port="${master.port:2103}"/>
 
     <clusters>
-        <cluster size="2">
-            <group name="client" size="2"/>
+        <cluster size="1">
+            <group name="client" size="1"/>
         </cluster>
     </clusters>
 
@@ -26,9 +26,9 @@
                  xmlns="urn:radargun:stages:core:3.0"
                  xmlns:cache="urn:radargun:stages:cache:3.0">
 
-        <define var="numberOfEntries" value="4000000" />
-        <define var="entrySize" value="10000" />
-        <define var="numberOfThreads" value="4" />
+        <define var="numberOfEntries" value="400000" />
+        <define var="entrySize" value="100" />
+        <define var="numberOfThreads" value="1" />
 
         <jvm-monitor-start/>
         <service-start groups="client"/>
@@ -42,13 +42,13 @@
             </cache:value-generator>
         </cache:load>
 
-        <cache:basic-operations-test groups="client" test-name="warmup" num-threads-per-node="${numberOfThreads}" duration="${warmup.duration:1m}" get-ratio="4" put-ratio="1">
+        <cache:basic-operations-test groups="client" test-name="warmup" entry-size="${entrySize}"  num-threads-per-node="${numberOfThreads}" duration="${warmup.duration:14s}" get-ratio="4" put-ratio="1">
             <cache:key-selector>
                 <cache:concurrent-keys total-entries="${numberOfEntries}"/>
             </cache:key-selector>
         </cache:basic-operations-test>
 
-        <cache:basic-operations-test groups="client" test-name="stress-test" duration="${test.duration:2m}" num-threads-per-node="${numberOfThreads}"  get-ratio="4" put-ratio="1">
+        <cache:basic-operations-test groups="client" test-name="stress-test" entry-size="${entrySize}" duration="${test.duration:1m}" num-threads-per-node="${numberOfThreads}"  get-ratio="4" put-ratio="1">
             <cache:key-selector>
                 <cache:concurrent-keys total-entries="${numberOfEntries}"/>
             </cache:key-selector>
@@ -62,9 +62,9 @@
              test-name="querying"
              duration="${test.duration:10s}"
              num-threads-per-node="${numberOfThreads}"
-             query-object-class="org.radargun.query.TextObject">
+             query-object-class="org.radargun.query.TextObject"
+             class="org.radargun.query.TextObject">
          <conditions>
-            <!-- The conditions are ANDed -->
             <any>
                <eq path="text" value="string Tiger" />
                <like path="text" value="%Sea%" />
@@ -74,8 +74,7 @@
             </not>
          </conditions>
       </query>
-
-        <service-stop/>
+      <service-stop/>
     </rg:scenario>
     <cleanup check-threads="false"/>
 
