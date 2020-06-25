@@ -3,8 +3,8 @@
     <master bindAddress="${master.address:127.0.0.1}" port="${master.port:2103}"/>
 
     <clusters>
-        <cluster size="2">
-            <group name="client" size="2"/>
+        <cluster size="1">
+            <group name="client" size="1"/>
         </cluster>
     </clusters>
 
@@ -26,8 +26,9 @@
                  xmlns="urn:radargun:stages:core:3.0"
                  xmlns:cache="urn:radargun:stages:cache:3.0">
 
-        <define var="numberOfEntries" value="400000" />
-        <define var="entrySize" value="100" />
+	<!-- entrySize*numberOfEntries < heap size -->
+        <define var="numberOfEntries" value="1500000" />
+        <define var="entrySize" value="1000" />
         <define var="numberOfThreads" value="1" />
 
         <jvm-monitor-start/>

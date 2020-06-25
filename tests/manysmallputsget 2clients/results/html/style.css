@@ -1,0 +1,127 @@
+.highlight {
+    background-color: #FFBBBB;
+}
+
+.gray {
+    background-color: #F0F0F0;
+}
+
+.firstCellStyle {
+    border-left-color: black;
+    border-left-width: 2px;
+    text-align: right;
+}
+
+.rowStyle {
+    text-align: right;
+}
+
+.expanded {
+    visibility: visible;
+    color: rgb(0, 77, 0);
+}
+
+.collapsed {
+    visibility: collapse;
+    line-height: 0;
+    padding: 0;
+    border: none;
+}
+
+img.collapsed {
+	display:none;
+}
+
+.none {
+    display: none;
+}
+
+.listItem {
+    display: list-item;
+}
+
+.graphTable, .graphTable th, .graphTable td {
+    border: none;
+}
+
+.onClick {
+    cursor: pointer;
+}
+
+.center {
+    text-align: center;
+}
+
+.left {
+    text-align: left;
+}
+
+.difference {
+    background-color: #FFBBBB;
+}
+
+.topLeft {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.graphDiv {
+    position: relative;
+}
+
+.floatLeft {
+    float: left;
+}
+
+.glasspanel {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    vertical-align: middle;
+}
+
+.popup_block {
+    display: inline-block;
+    margin: 10%;
+    background-color: white;
+}
+
+.popup_close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 200%;
+    color: white;
+    font-family: sans-serif;
+    text-decoration: none;
+}
+
+table {
+    border-spacing: 0;
+    border: 1px solid gray;
+}
+
+tr {
+	padding: 2px;
+	border: 1px solid gray;
+}
+
+td {
+    border: inherit;
+    padding: inherit;
+}
+
+th {
+    border: inherit;
+    padding: inherit;
+
+    border-left-color: black;
+    border-left-width: 2px;
+    text-align: center;
+    vertical-align: top;
+}

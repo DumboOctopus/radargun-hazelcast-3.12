@@ -3,8 +3,8 @@
     <master bindAddress="${master.address:127.0.0.1}" port="${master.port:2103}"/>
 
     <clusters>
-        <cluster size="2">
-            <group name="client" size="2"/>
+        <cluster size="1">
+            <group name="client" size="1"/>
         </cluster>
     </clusters>
 
