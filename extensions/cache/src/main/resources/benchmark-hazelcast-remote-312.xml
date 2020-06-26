@@ -58,6 +58,7 @@
         </cache:basic-operations-test>
 
         <!-- Logic does only queries - we don't have to specify any generator -->
+	<!--
       <query xmlns="urn:radargun:stages:query:3.0"
              test-name="querying"
              duration="${test.duration:10s}"
@@ -74,6 +75,7 @@
             </not>
          </conditions>
       </query>
+	-->
       <service-stop/>
     </rg:scenario>
     <cleanup check-threads="false"/>
