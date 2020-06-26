@@ -1,0 +1,87 @@
+<!-- This test shows example comparison between three products -->
+<benchmark xmlns="urn:radargun:benchmark:3.0">
+    <master bindAddress="${master.address:127.0.0.1}" port="${master.port:2103}"/>
+
+    <clusters>
+        <cluster size="1">
+            <group name="client" size="1"/>
+        </cluster>
+    </clusters>
+
+    <configurations>
+        <config name="Hazelcast 312 client-server">
+
+            <setup group="client" plugin="hazelcast312">
+                <hazelcast-client xmlns="urn:radargun:plugins:hazelcast312:3.0">
+                    <!--Address of one server is enough to connect to the cluster, but it's recommended to specify all of them-->
+                    <servers>10.0.1.93:5701</servers>
+                </hazelcast-client>
+            </setup>
+
+        </config>
+
+    </configurations>
+
+    <rg:scenario xmlns:rg="urn:radargun:benchmark:3.0"
+                 xmlns="urn:radargun:stages:core:3.0"
+                 xmlns:cache="urn:radargun:stages:cache:3.0">
+
+	<!-- entrySize*numberOfEntries < heap size -->
+        <define var="numberOfEntries" value="2400000" />
+        <define var="entrySize" value="1000" />
+        <define var="numberOfThreads" value="1" />
+
+        <jvm-monitor-start/>
+        <service-start groups="client"/>
+
+         <cache:load groups="client" num-entries="${numberOfEntries}" entry-size="${entrySize}" num-threads="${numberOfThreads}" log-period="10000">
+            <cache:key-generator>
+                <cache:byte-array-key />
+            </cache:key-generator>
+            <cache:value-generator>
+                <cache:byte-array />
+            </cache:value-generator>
+        </cache:load>
+
+        <cache:basic-operations-test groups="client" test-name="warmup" entry-size="${entrySize}"  num-threads-per-node="${numberOfThreads}" duration="${warmup.duration:14s}" get-ratio="4" put-ratio="1">
+            <cache:key-selector>
+                <cache:concurrent-keys total-entries="${numberOfEntries}"/>
+            </cache:key-selector>
+        </cache:basic-operations-test>
+
+        <cache:basic-operations-test groups="client" test-name="stress-test" entry-size="${entrySize}" duration="${test.duration:1m}" num-threads-per-node="${numberOfThreads}"  get-ratio="4" put-ratio="1">
+            <cache:key-selector>
+                <cache:concurrent-keys total-entries="${numberOfEntries}"/>
+            </cache:key-selector>
+            <statistics>
+                <common/>
+            </statistics>
+        </cache:basic-operations-test>
+
+        <!-- Logic does only queries - we don't have to specify any generator -->
+      <query xmlns="urn:radargun:stages:query:3.0"
+             test-name="querying"
+             duration="${test.duration:10s}"
+             num-threads-per-node="${numberOfThreads}"
+             query-object-class="org.radargun.query.TextObject"
+             class="org.radargun.query.TextObject">
+         <conditions>
+            <any>
+               <eq path="text" value="string Tiger" />
+               <like path="text" value="%Sea%" />
+            </any>
+            <not>
+               <eq path="text" value="string Seahorse"/>
+            </not>
+         </conditions>
+      </query>
+      <service-stop/>
+    </rg:scenario>
+    <cleanup check-threads="false"/>
+
+    <reports>
+        <reporter type="csv"/>
+        <reporter type="html"/>
+    </reports>
+
+</benchmark>
