@@ -16,20 +16,26 @@ public class GaussianKeysSelector implements KeySelector {
    private final long numEntries;
    private final long mean;
    private final long standardDeviation;
+   private final long minimum, maximum;
 
-   public GaussianKeysSelector(Random random, long numEntries, long mean, long standardDeviation) {
+   public GaussianKeysSelector(Random random, long numEntries, long mean, long standardDeviation, long minimum, long maximum) {
       this.random = random;
       this.numEntries = numEntries;
       this.mean = mean;
       this.standardDeviation = standardDeviation;
+      this.minimum = minimum;
+      this.maximum = maximum;
    }
 
    @Override
    public long next() {
       long result;
-      do {
+      
+      result = (long) (random.nextGaussian() * standardDeviation + mean);
+      while(result < minimum ||  maximum < result) {
          result = (long) (random.nextGaussian() * standardDeviation + mean);
-      } while (result < 0 || result >= numEntries);
+      }
+
       return result;
    }
 
@@ -46,6 +52,12 @@ public class GaussianKeysSelector implements KeySelector {
       @Property(doc = "Standard deviation. Default is numEntries/8.")
       private long standardDeviation = -1;
 
+      @Property(doc = "Minimum output. Default is mean-3*standard-deviation")
+      private long minimum = -1;
+
+      @Property(doc = "Maximum output. Default is mean+3*standard-deviation")
+      private long maximum = -1;
+
       @Override
       public KeySelector newInstance(CacheOperationsTestStage stage, Random random, int globalThreadId, int threadId) {
          if (mean == -1) {
@@ -55,7 +67,22 @@ public class GaussianKeysSelector implements KeySelector {
             // over 99% of values are within 3 standard deviations http://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule
             standardDeviation = numEntries / 8;
          }
-         return new GaussianKeysSelector(random, numEntries, mean, standardDeviation);
+         // minimum == -1 means it wasn't set in the XML.
+         if (minimum == -1) {
+            minimum = mean-3*standardDeviation;
+         }
+         if(maximum == -1) {
+            maximum = mean+3*standardDeviation;
+         }
+
+         if(standardDeviation <= 0) {
+            throw new IllegalArgumentException("Standard deviation must be positive for cache:gaussian-keys");
+         }
+         if(maximum <= minimum) {
+            throw new IllegalArgumentException("Property maximum must be strictly greater than minimum for cache:gaussian-keys");
+         }
+
+         return new GaussianKeysSelector(random, numEntries, mean, standardDeviation, minimum, maximum);
       }
 
       @Override
