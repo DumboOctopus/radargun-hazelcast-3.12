@@ -33,25 +33,41 @@
         <jvm-monitor-start/>
         <service-start groups="client"/>
 
+        <!-- load keys -->
          <cache:load groups="client" num-entries="${numberOfEntries}" entry-size="${entrySize}" num-threads="${numberOfThreads}" log-period="10000">
+            <!-- key selectors generate a long -->
+            <cache:key-selector>
+                <cache:gaussian-keys mean="43500000" standard-deviation="4000000" maximum="85000000"/>
+            </cache:key-selector>
+            <!-- 
+            key generators take key selector's long as input 
+            and they generate a key.
+            This configuration they generate keys like G:G12332543456
+            -->
             <cache:key-generator>
-                <cache:byte-array-key />
+                <cache:string format="G:G%d" />
             </cache:key-generator>
-            <cache:value-generator>
-                <cache:byte-array />
-            </cache:value-generator>
         </cache:load>
 
+        <!-- Warm up get and put handlers -->
         <cache:basic-operations-test groups="client" test-name="warmup" entry-size="${entrySize}"  num-threads-per-node="${numberOfThreads}" duration="${warmup.duration:14s}" get-ratio="4" put-ratio="1">
             <cache:key-selector>
-                <cache:concurrent-keys total-entries="${numberOfEntries}"/>
+                <cache:gaussian-keys mean="43500000" standard-deviation="4000000" maximum="85000000"/>
             </cache:key-selector>
+            <cache:key-generator>
+                <cache:string format="G:G%d" />
+            </cache:key-generator>
         </cache:basic-operations-test>
 
+        <!-- conduct actual test -->
         <cache:basic-operations-test groups="client" test-name="stress-test" entry-size="${entrySize}" duration="${test.duration:1m}" num-threads-per-node="${numberOfThreads}"  get-ratio="4" put-ratio="1">
+            <!-- see comments in the load keys -->
             <cache:key-selector>
-                <cache:concurrent-keys total-entries="${numberOfEntries}"/>
+                <cache:gaussian-keys mean="43500000" standard-deviation="4000000" maximum="85000000"/>
             </cache:key-selector>
+            <cache:key-generator>
+                <cache:string format="G:G%d" />
+            </cache:key-generator>
             <statistics>
                 <common/>
             </statistics>
