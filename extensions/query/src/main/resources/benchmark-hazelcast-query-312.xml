@@ -3,7 +3,9 @@
     <master bindAddress="${master.address:127.0.0.1}" port="${master.port:2103}"/>
 
     <clusters>
-        <cluster size="1">
+        <cluster size="2">
+        <!-- <cluster size="1"> -->
+            <group name="server" size="1"/>
             <group name="client" size="1"/>
         </cluster>
     </clusters>
@@ -29,11 +31,12 @@
                  xmlns="urn:radargun:stages:core:3.0"
                  xmlns:cache="urn:radargun:stages:cache:3.0">
 
-        <define var="numberOfEntries" value="1000" />
+        <define var="numberOfEntries" value="10000" />
         <define var="entrySize" value="100" />
         <define var="numberOfThreads" value="1" />
 
         <jvm-monitor-start/>
+        <service-start groups="server"/>
         <service-start groups="client"/>
 
         <cache:load groups="client" num-entries="${numberOfEntries}" entry-size="${entrySize}" num-threads="${numberOfThreads}" log-period="10000">
@@ -41,36 +44,44 @@
                 <cache:byte-array-key />
             </cache:key-generator>
             <cache:value-generator>
-                <sentence file="${org.radargun.query.dictionary:/test-data/animals.txt}" />
+                <!-- if we have 10_000 numbers with int value between 0 and 100, -->
+                <!-- then we have 10 of each int value in [0,1000]-->
+                <cache:number-object int-min="0" int-max="1000" double-min="0" double-max="1000"/>
             </cache:value-generator>
         </cache:load>
 
-	<!-- Logic does only queries - we don't have to specify any generator -->
-	<repeat from="1" to="15" inc="1">
-	      <query xmlns="urn:radargun:stages:query:3.0"
-		      groups="client"
-		      test-name="querying"
-		      duration="10s"
-		      num-threads-per-node="1"
-		      amend-test="true"
-		      query-object-class="org.radargun.query.TextObject"
-		      class="org.radargun.query.TextObject">
-		      <conditions>
-			      <!-- The conditions are ANDed -->
-			      <any>
-				      <eq path="text" value="string Tiger" />
-				      <like path="text" value="%Sea%" />
-			      </any>
-			      <not>
-				      <eq path="text" value="string Seahorse"/>
-			      </not>
-		      </conditions>
-	      </query>
-      </repeat>
+        <!-- We aren't testing the network.-->
+        <!-- So the results should be a small list -->
+        <!-- To really test it, they should be computationally intensive -->
+
+        <repeat from="1" to="10" inc="1">
+            <define var="randomValue" value="#{${random.int} % 1000}" />
+            <query xmlns="urn:radargun:stages:query:3.0"
+                groups="client"
+                test-name="querying"
+                duration="10s"
+                num-threads-per-node="1"
+                amend-test="true"
+                class="org.radargun.query.NumberObject">
+                  <conditions>
+                      <!-- The conditions are ANDed -->
+
+                      <!-- if we have 10_000 numbers between 0 and 100, -->
+                      <!-- then we have 10 of each number. So ~30 entries per query -->
+                    <not>
+                        <eq path="integerValue" value="#{${randomValue}+2}" />
+                    </not>
+                    <gt path="integerValue" value="#{${randomValue}}"/>
+                    <lt path="integerValue" value="#{${randomValue}+5}"/>
+                      
+                  </conditions>
+              </query>
+
+        </repeat>
 
         <service-stop/>
     </rg:scenario>
-    <cleanup check-threads="false"/>
+    
 
     <reports>
         <reporter type="csv"/>
