@@ -31,6 +31,7 @@ public class QueryStage extends TestStage {
    @PropertyDelegate
    public QueryBase base = new QueryBase();
 
+   // this code is injected by looking at a @Service's  @Provided  methods
    @InjectTrait(dependency = InjectTrait.Dependency.MANDATORY)
    private Queryable queryable;
 

@@ -1,0 +1,111 @@
+<!-- This test shows example comparison between three products -->
+<benchmark xmlns="urn:radargun:benchmark:3.0">
+    <master bindAddress="${master.address:127.0.0.1}" port="${master.port:2103}"/>
+
+    <clusters>
+        <cluster size="2">
+            <group name="server" size="1"/>
+            <group name="client" size="1"/>
+        </cluster>
+    </clusters>
+
+    <configurations>
+        <config name="Hazelcast 312 client-server">
+            <setup group="server" plugin="hazelcast312">
+                <hazelcast xmlns="urn:radargun:plugins:hazelcast312:3.0" file="dist-sync.xml"/>
+            </setup>
+
+            <setup group="client" plugin="hazelcast312">
+                <hazelcast-client xmlns="urn:radargun:plugins:hazelcast312:3.0">
+                    <!--Address of one server is enough to connect to the cluster, but it's recommended to specify all of them-->
+                    <servers>127.0.0.1:5701</servers>
+                </hazelcast-client>
+            </setup>
+
+        </config>
+
+    </configurations>
+
+    <rg:scenario xmlns:rg="urn:radargun:benchmark:3.0"
+                 xmlns="urn:radargun:stages:core:3.0"
+                 xmlns:cache="urn:radargun:stages:cache:3.0">
+
+        <define var="numberOfEntries" value="1000" />
+        <define var="entrySize" value="100" />
+        <define var="numberOfThreads" value="1" />
+
+        <jvm-monitor-start/>
+        <service-start groups="server"/>
+        <service-start groups="client"/>
+
+        <cache:load groups="client" num-entries="${numberOfEntries}" entry-size="${entrySize}" num-threads="${numberOfThreads}" log-period="10000">
+            <cache:key-generator>
+                <cache:byte-array-key />
+            </cache:key-generator>
+            <cache:value-generator>
+                <sentence file="${org.radargun.query.dictionary:/test-data/animals.txt}" />
+            </cache:value-generator>
+        </cache:load>
+
+         <cache:basic-operations-test groups="client" test-name="warmup" num-threads-per-node="${numberOfThreads}" duration="12s" get-ratio="0" put-ratio="1" entry-size="${entrySize}">
+            <cache:key-selector>
+                <cache:gaussian-keys mean="42500000" maximum="85000000" standard-deviation="4000000" />
+            </cache:key-selector>
+             <cache:key-generator>
+                <cache:string format="G:G%d" />
+            </cache:key-generator>
+        </cache:basic-operations-test>
+
+        <cache:pipelined-operations-test groups="client" test-name="warmup" num-threads-per-node="${numberOfThreads}" duration="12s" get-ratio="0" put-ratio="1" pipeline-size="4" entry-size="${entrySize}">
+            <cache:key-selector>
+                <cache:gaussian-keys mean="42500000" maximum="85000000" standard-deviation="4000000" />
+            </cache:key-selector>
+             <cache:key-generator>
+                <cache:string format="G:G%d" />
+            </cache:key-generator>
+        </cache:pipelined-operations-test>
+
+        <cache:pipelined-operations-test groups="client" test-name="pipelined-put-test" duration="12s" num-threads-per-node="${numberOfThreads}"  get-ratio="0" put-ratio="1" pipeline-size="4" entry-size="${entrySize}">
+            <cache:key-selector>
+                <cache:gaussian-keys mean="42500000" maximum="85000000" standard-deviation="4000000" />
+            </cache:key-selector>
+             <cache:key-generator>
+                <cache:string format="G:G%d" />
+            </cache:key-generator>
+
+            <statistics>
+                <common/>
+            </statistics>
+        </cache:pipelined-operations-test>
+
+
+      <!-- Logic does only queries - we don't have to specify any generator -->
+      <query xmlns="urn:radargun:stages:query:3.0"
+             groups="client"
+             test-name="querying"
+             duration="10s"
+             num-threads-per-node="10"
+             query-object-class="org.radargun.query.TextObject"
+             class="org.radargun.query.TextObject">
+         <conditions>
+            <!-- The conditions are ANDed -->
+            <any>
+               <eq path="text" value="string Tiger" />
+               <like path="text" value="%Sea%" />
+            </any>
+            <not>
+               <eq path="text" value="string Seahorse"/>
+            </not>
+         </conditions>
+      </query>
+
+        <service-stop/>
+    </rg:scenario>
+    <cleanup check-threads="false"/>
+
+    <reports>
+        <reporter type="csv"/>
+        <reporter type="html"/>
+    </reports>
+
+</benchmark>
