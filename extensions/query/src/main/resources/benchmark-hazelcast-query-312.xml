@@ -3,9 +3,9 @@
     <master bindAddress="${master.address:127.0.0.1}" port="${master.port:2103}"/>
 
     <clusters>
-        <cluster size="2">
-        <!-- <cluster size="1"> -->
-            <group name="server" size="1"/>
+        <!-- <cluster size="2"> -->
+        <cluster size="1">
+            <!-- <group name="server" size="1"/> -->
             <group name="client" size="1"/>
         </cluster>
     </clusters>
@@ -36,7 +36,7 @@
         <define var="numberOfThreads" value="1" />
 
         <jvm-monitor-start/>
-        <service-start groups="server"/>
+        <!-- <service-start groups="server"/> -->
         <service-start groups="client"/>
 
         <cache:load groups="client" num-entries="${numberOfEntries}" entry-size="${entrySize}" num-threads="${numberOfThreads}" log-period="10000">
