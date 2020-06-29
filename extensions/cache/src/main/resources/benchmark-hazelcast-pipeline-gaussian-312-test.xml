@@ -3,22 +3,18 @@
     <master bindAddress="${master.address:127.0.0.1}" port="${master.port:2103}"/>
 
     <clusters>
-        <cluster size="2">
-            <group name="server" size="1"/>
+        <cluster size="1">
             <group name="client" size="1"/>
         </cluster>
     </clusters>
 
     <configurations>
         <config name="Hazelcast 312 client-server">
-            <setup group="server" plugin="hazelcast312">
-                <hazelcast xmlns="urn:radargun:plugins:hazelcast312:3.0" file="dist-sync.xml"/>
-            </setup>
 
             <setup group="client" plugin="hazelcast312">
                 <hazelcast-client xmlns="urn:radargun:plugins:hazelcast312:3.0">
                     <!--Address of one server is enough to connect to the cluster, but it's recommended to specify all of them-->
-                    <servers>127.0.0.1:5701</servers>
+                    <servers>10.0.1.93:5701</servers>
                 </hazelcast-client>
             </setup>
 
@@ -35,7 +31,6 @@
         <define var="numberOfThreads" value="1" />
 
         <jvm-monitor-start/>
-        <service-start groups="server"/>
         <service-start groups="client"/>
 
         <cache:load groups="client" num-entries="${numberOfEntries}" entry-size="${entrySize}" num-threads="${numberOfThreads}" log-period="10000">
