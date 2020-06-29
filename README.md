@@ -10,3 +10,8 @@ The best way to get started with RadarGun is the [Five-minute tutorial](http://r
 ## Report a bug
 ... or request a feature using our [issue tracker](https://github.com/radargun/radargun/issues)
 
+
+
+Notes:
+* if you get class not found exceptions on hazelcast's side, add hazelcast36/lib/plugin-* to 
+hazelcast instance's classpath. 

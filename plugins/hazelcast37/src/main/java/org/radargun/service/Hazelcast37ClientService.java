@@ -104,4 +104,9 @@ public class Hazelcast37ClientService implements Lifecycle {
       }
       return map;
    }
+
+   @ProvidesTrait
+   public Hazelcast37Queryable createQueryable() {
+      return new Hazelcast37Queryable(this);
+   }
 }

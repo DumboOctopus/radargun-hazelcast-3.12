@@ -25,9 +25,5 @@ public class Hazelcast312ClientService extends Hazelcast37ClientService {
    }
 
 
-   @ProvidesTrait
-   public Hazelcast312Queryable createQueryable() {
-      return new Hazelcast312Queryable(this);
-   }
 
 }
