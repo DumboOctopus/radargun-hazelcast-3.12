@@ -10,9 +10,12 @@
 
     <configurations>
         <config name="Hazelcast 312 client-server">
-
+            <!-- This does nothing since radargun does not make a server group-->
+            <setup group="server" plugin="hazelcast312">
+                <hazelcast xmlns="urn:radargun:plugins:hazelcast312:3.0" file="dist-sync.xml"/>
+            </setup>
             <setup group="client" plugin="hazelcast312">
-                <hazelcast-client xmlns="urn:radargun:plugins:hazelcast312:3.0">
+                <hazelcast-client xmlns="urn:radargun:plugins:hazelcast312:3.0" file="client.xml">
                     <!--Address of one server is enough to connect to the cluster, but it's recommended to specify all of them-->
                     <servers>10.0.1.93:5701</servers>
                 </hazelcast-client>

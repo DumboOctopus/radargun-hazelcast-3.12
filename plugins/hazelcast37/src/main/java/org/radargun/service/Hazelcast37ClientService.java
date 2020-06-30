@@ -1,17 +1,22 @@
 package org.radargun.service;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
+import com.hazelcast.client.config.XmlClientConfigBuilder;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.radargun.Service;
 import org.radargun.config.DefinitionElement;
 import org.radargun.config.Property;
+import org.radargun.logging.Log;
+import org.radargun.logging.LogFactory;
 import org.radargun.traits.Lifecycle;
 import org.radargun.traits.ProvidesTrait;
 import org.radargun.utils.AddressStringListConverter;
+
 
 /**
  * Hazelcast client service
@@ -36,16 +41,32 @@ public class Hazelcast37ClientService implements Lifecycle {
    @Property(name = "cache", doc = "Name of the map ~ cache", deprecatedName = "map")
    protected String mapName = "default";
 
+   @Property(name = Service.FILE, doc = "File used as a configuration for this service.", deprecatedName = "config")
+   protected String configFile;
+
    @Property(doc = "Indices that should be build.", complexConverter = Hazelcast36Service.IndexConverter.class)
    protected List<Hazelcast37ClientService.Index> indices = Collections.EMPTY_LIST;
+
+   protected final Log log = LogFactory.getLog(getClass());
 
    @Override
    public void start() {
       ClientConfig clientConfig = new ClientConfig();
-      clientConfig.setProperty("hazelcast.operation.call.timeout.millis", "12000");
+      //clientConfig.setProperty("hazelcast.operation.call.timeout.millis", "12000");
+      
+      // we will use log file if its specified.
+      // otherwise, we will use defaults above
+      if(configFile != null){
+         try {
+            clientConfig = new XmlClientConfigBuilder(configFile).build();
+         } catch(IOException e) {
+            log.error("Failed to get configuration", e);
+         }
+      }
+
+      // the radargun configuration file overrides stuff in configFile
       clientConfig.getGroupConfig().setName(groupName).setPassword(groupPass);
       clientConfig.getNetworkConfig().addAddress(servers);
-
 
       hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
    }
@@ -65,6 +86,7 @@ public class Hazelcast37ClientService implements Lifecycle {
    public Hazelcast37ClientOperations createOperations() {
       return new Hazelcast37ClientOperations(this);
    }
+
 
    @ProvidesTrait
    public Hazelcast37ClientService getSelf() {

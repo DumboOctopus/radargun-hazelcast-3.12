@@ -17,7 +17,7 @@
             </setup>
 
             <setup group="client" plugin="hazelcast312">
-                <hazelcast-client xmlns="urn:radargun:plugins:hazelcast312:3.0">
+                <hazelcast-client xmlns="urn:radargun:plugins:hazelcast312:3.0" file="client.xml">
                     <!--Address of one server is enough to connect to the cluster, but it's recommended to specify all of them-->
                     <servers>127.0.0.1:5701</servers>
                 </hazelcast-client>
@@ -51,8 +51,8 @@
         </cache:load>
 
         <!-- We aren't testing the network.-->
-        <!-- So the results should be a small list -->
-        <!-- To really test it, they should be computationally intensive -->
+        <!-- So the results list should be a small -->
+        <!-- but it should be somewhat difficult to compute -->
 
         <repeat from="1" to="10" inc="1">
             <define var="randomValue" value="#{${random.int} % 1000}" />

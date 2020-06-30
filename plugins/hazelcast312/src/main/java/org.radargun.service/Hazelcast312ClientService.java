@@ -22,8 +22,7 @@ public class Hazelcast312ClientService extends Hazelcast37ClientService {
    @Override
    public Hazelcast312ClientService getSelf() {
       return this;
-   }
-
+   } 
 
 
 }
