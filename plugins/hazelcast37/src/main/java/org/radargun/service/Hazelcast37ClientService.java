@@ -42,8 +42,10 @@ public class Hazelcast37ClientService implements Lifecycle {
    @Override
    public void start() {
       ClientConfig clientConfig = new ClientConfig();
+      clientConfig.setProperty("hazelcast.operation.call.timeout.millis", "12000");
       clientConfig.getGroupConfig().setName(groupName).setPassword(groupPass);
       clientConfig.getNetworkConfig().addAddress(servers);
+
 
       hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
    }
