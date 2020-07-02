@@ -340,10 +340,11 @@
             <module>../plugins/hazelcast39</module>
             <module>../plugins/hazelcast310</module>
             <module>../plugins/hazelcast312</module>
+            <module>../plugins/hazelcast4</module>
          </modules>
          <properties>
-            <plugins.hazelcast-latest>hazelcast312</plugins.hazelcast-latest>
-            <plugins.hazelcast>hazelcast2,hazelcast36,hazelcast37,hazelcast38,hazelcast39,hazelcast310,hazelcast312,${plugins.hazelcast-latest}</plugins.hazelcast>
+            <plugins.hazelcast-latest>hazelcast4</plugins.hazelcast-latest>
+            <plugins.hazelcast>hazelcast2,hazelcast36,hazelcast37,hazelcast38,hazelcast39,hazelcast310,hazelcast312,hazelcast4,${plugins.hazelcast-latest}</plugins.hazelcast>
          </properties>
       </profile>
       <!-- <profile>
