@@ -16,15 +16,13 @@
   -->
 <hazelcast-client xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                   xsi:schemaLocation="http://www.hazelcast.com/schema/client-config
-                               http://www.hazelcast.com/schema/client-config/hazelcast-client-config-3.12.xsd"
+                               http://www.hazelcast.com/schema/client-config/hazelcast-client-config-4.0.xsd"
                   xmlns="http://www.hazelcast.com/schema/client-config">
 
     <instance-name>Client2</instance-name>
 
-    <group>
-      <name>dev</name>
-      <password>dev-pass</password>
-    </group>
+    <!-- theres no password in 4. -->
+    <cluster-name>dev</cluster-name>
 
     
 
