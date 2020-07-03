@@ -6,6 +6,7 @@ import java.util.List;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
+import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import org.radargun.Service;
@@ -33,10 +34,10 @@ public class Hazelcast37ClientService implements Lifecycle {
    protected String[] servers;
 
    @Property(doc = "Group name, the default is dev")
-   protected String groupName = "dev";
+   protected String groupName = "";
 
    @Property(doc = "Group password, the default is dev-pass")
-   protected String groupPass = "dev-pass";
+   protected String groupPass = "";
 
    @Property(name = "cache", doc = "Name of the map ~ cache", deprecatedName = "map")
    protected String mapName = "default";
@@ -65,8 +66,24 @@ public class Hazelcast37ClientService implements Lifecycle {
       }
 
       // the radargun configuration file overrides stuff in configFile
-      clientConfig.getGroupConfig().setName(groupName).setPassword(groupPass);
-      clientConfig.getNetworkConfig().addAddress(servers);
+
+      // this is complicated because hazelcast default name is dev
+      // radargun's default is ""
+      // so if:
+      //    unset in radargun & unset in client => dev (hazelcast default)
+      //    unset in radargun & set in client => clientconfig
+      //    set in radargun & unset in client => radargun
+      //    set in radargun & set in client => radargun
+      // same idea for password
+      GroupConfig groupConfig = clientConfig.getGroupConfig();
+
+      if(!groupName.equals(""))
+         groupConfig.setName(groupName);
+      if(!groupPass.equals(""))
+         groupConfig.setPassword(groupPass);
+
+      if(servers != null)
+         clientConfig.getNetworkConfig().addAddress(servers);
 
       hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
    }

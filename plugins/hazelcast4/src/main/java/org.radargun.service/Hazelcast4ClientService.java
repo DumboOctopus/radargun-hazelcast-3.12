@@ -3,6 +3,7 @@ package org.radargun.service;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
@@ -18,11 +19,12 @@ import org.radargun.traits.Lifecycle;
 import org.radargun.traits.ProvidesTrait;
 import org.radargun.utils.AddressStringListConverter;
 
+
 /**
  * Hazelcast client service.
- *
+ * <p>
  * Unfortunately Hazelcast4 puts IMap in the map package while previous versions put it
- * in the map package. 
+ * in the map package.
  *
  * @author Roman Macor &lt;rmacor@redhat.com&gt;
  */
@@ -36,8 +38,7 @@ public class Hazelcast4ClientService implements Lifecycle { //extends Hazelcast3
    protected String[] servers;
 
    @Property(doc = "Group name, the default is dev")
-   protected String groupName = "dev";
-
+   protected String groupName = "";
 
    @Property(name = "cache", doc = "Name of the map ~ cache", deprecatedName = "map")
    protected String mapName = "default";
@@ -54,20 +55,32 @@ public class Hazelcast4ClientService implements Lifecycle { //extends Hazelcast3
    public void start() {
       ClientConfig clientConfig = new ClientConfig();
       //clientConfig.setProperty("hazelcast.operation.call.timeout.millis", "12000");
-      
-      // we will use log file if its specified.
+
+      // we will use config file if its specified.
       // otherwise, we will use defaults above
-      if(configFile != null){
+      if (configFile != null) {
          try {
             clientConfig = new XmlClientConfigBuilder(configFile).build();
-         } catch(IOException e) {
+         } catch (IOException e) {
             log.error("Failed to get configuration", e);
          }
       }
 
       // the radargun configuration file overrides stuff in configFile
-      clientConfig.setClusterName(groupName);
-      clientConfig.getNetworkConfig().addAddress(servers);
+      // this is complicated because hazelcast default name is dev
+      // radargun's default is ""
+      // so if:
+      //    unset in radargun & unset in client => dev (hazelcast default)
+      //    unset in radargun & set in client => clientconfig
+      //    set in radargun & unset in client => radargun
+      //    set in radargun & set in client => radargun
+      // same idea for servers
+
+      if(!groupName.equals(""))
+         clientConfig.setClusterName(groupName);
+
+      if(servers != null)
+         clientConfig.getNetworkConfig().addAddress(servers);
 
       hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
    }
@@ -121,9 +134,9 @@ public class Hazelcast4ClientService implements Lifecycle { //extends Hazelcast3
                continue;
             }
             if ((index.mapName == null && map.getName().equals(this.mapName))
-                    || (index.mapName != null && map.getName().equals(index.mapName))) {
+               || (index.mapName != null && map.getName().equals(index.mapName))) {
                IndexType indexType = IndexType.HASH;
-               if(index.ordered)
+               if (index.ordered)
                   indexType = IndexType.SORTED;
                map.addIndex(indexType, index.path);
                index.added = true;
