@@ -146,9 +146,9 @@ public class Hazelcast4ClientService implements Lifecycle { //extends Hazelcast3
       return map;
    }
 
-   // @ProvidesTrait
-   // public Hazelcast4Queryable createQueryable() {
-   //    return new Hazelcast4Queryable(this);
-   // }
+    @ProvidesTrait
+    public Hazelcast4Queryable createQueryable() {
+       return new Hazelcast4Queryable(this);
+    }
 
 }

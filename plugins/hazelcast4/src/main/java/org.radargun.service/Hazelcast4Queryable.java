@@ -1,14 +1,16 @@
 package org.radargun.service;
 
-// import java.util.Comparator;
 
-// import com.hazelcast.query.PagingPredicate;
-// import com.hazelcast.query.Predicate;
-// import com.hazelcast.query.Predicates;
-// import org.radargun.logging.Log;
-// import org.radargun.logging.LogFactory;
-// import org.radargun.traits.Query;
-// import org.radargun.traits.Queryable;
+
+import java.util.Comparator;
+
+import com.hazelcast.query.PagingPredicate;
+import com.hazelcast.query.Predicate;
+import com.hazelcast.query.Predicates;
+import org.radargun.logging.Log;
+import org.radargun.logging.LogFactory;
+import org.radargun.traits.Query;
+import org.radargun.traits.Queryable;
 
 /**
  * Hazelcast has a limited support for aggregations - only a single aggregation can be executed per query, without any grouping,
@@ -16,10 +18,13 @@ package org.radargun.service;
  * http://stackoverflow.com/questions/29481508/hazelcast-aggregations-api-results-in-classcastexception-with-predicates
  * Additionaly, indexes are not used in aggregations.
  *
+ * Since hazelcast 4 changed the paths of the imports, we have to copy paste these hazelcast 3.6 classes instead of reusing
+ * them directly.
+ *
  * @author Radim Vansa &lt;rvansa@redhat.com&gt;
  * @author Jakub Markos &lt;jmarkos@redhat.com&gt;
  */
-public class Hazelcast4Queryable {}/*implements Queryable {
+public class Hazelcast4Queryable implements Queryable {
    private static final Log log = LogFactory.getLog(HazelcastQueryable.class);
    protected final Hazelcast4ClientService service;
 
@@ -34,7 +39,7 @@ public class Hazelcast4Queryable {}/*implements Queryable {
 
    @Override
    public Query.Context createContext(String containerName) {
-      return new HazelcastQuery.Context(service.getMap(containerName));
+      return new Hazelcast4Query.Context(service.getMap(containerName));
    }
 
    @Override
@@ -189,10 +194,10 @@ public class Hazelcast4Queryable {}/*implements Queryable {
          Predicate finalPredicate;
          if (comparator == null) {
             if (limit < 0) finalPredicate = predicate;
-            else finalPredicate = new PagingPredicate(predicate, limit);
+            else finalPredicate = Predicates.pagingPredicate(predicate, limit);
          } else {
-            if (limit < 0) finalPredicate = new PagingPredicate(predicate, comparator, Integer.MAX_VALUE);
-            else finalPredicate = new PagingPredicate(predicate, comparator, limit);
+            if (limit < 0) finalPredicate = Predicates.pagingPredicate(predicate, comparator, Integer.MAX_VALUE);
+            else finalPredicate = Predicates.pagingPredicate(predicate, comparator, limit);
          }
 
          String[] stringProjection = null;

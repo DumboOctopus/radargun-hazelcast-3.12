@@ -1,0 +1,92 @@
+<!-- This test shows example comparison between three products -->
+<benchmark xmlns="urn:radargun:benchmark:3.0">
+    <master bindAddress="${master.address:127.0.0.1}" port="${master.port:2103}"/>
+
+    <clusters>
+        <!-- <cluster size="2"> -->
+        <cluster size="1">
+            <!-- <group name="server" size="1"/> -->
+            <group name="client" size="1"/>
+        </cluster>
+    </clusters>
+
+    <configurations>
+        <config name="Hazelcast 312 client-server">
+            <setup group="server" plugin="hazelcast312">
+                <hazelcast xmlns="urn:radargun:plugins:hazelcast312:3.0" file="dist-sync.xml"/>
+            </setup>
+
+            <setup group="client" plugin="hazelcast312">
+                <hazelcast-client xmlns="urn:radargun:plugins:hazelcast312:3.0" file="client.xml">
+                    <!--Address of one server is enough to connect to the cluster, but it's recommended to specify all of them-->
+                    <servers>127.0.0.1:5701</servers>
+                </hazelcast-client>
+            </setup>
+
+        </config>
+
+    </configurations>
+
+    <rg:scenario xmlns:rg="urn:radargun:benchmark:3.0"
+                 xmlns="urn:radargun:stages:core:3.0"
+                 xmlns:cache="urn:radargun:stages:cache:3.0">
+
+        <define var="numberOfEntries" value="10000" />
+        <define var="entrySize" value="100" />
+        <define var="numberOfThreads" value="1" />
+
+        <jvm-monitor-start/>
+        <!-- <service-start groups="server"/> -->
+        <service-start groups="client"/>
+
+        <cache:load groups="client" num-entries="${numberOfEntries}" entry-size="${entrySize}" num-threads="${numberOfThreads}" log-period="10000">
+            <cache:key-generator>
+                <cache:byte-array-key />
+            </cache:key-generator>
+            <cache:value-generator>
+                <!-- if we have 10_000 numbers with int value between 0 and 100, -->
+                <!-- then we have 10 of each int value in [0,1000]-->
+                <cache:single-word file="${ord.radargun.query.dictionary:/test/animals.txt}"/>
+            </cache:value-generator>
+        </cache:load>
+
+        <!-- We aren't testing the network.-->
+        <!-- So the results list should be a small -->
+        <!-- but it should be somewhat difficult to compute -->
+
+        <!-- Loading the data -->
+        <cache:load num-entries="5000" entry-size="0" seed="12345">
+            <cache:value-generator>
+                <cache:single-word file="${org.radargun.query.dictionary:/test-data/animals.txt}" />
+            </cache:value-generator>
+        </cache:load>
+
+        <!-- Logic does only queries - we don't have to specify any generator -->
+        <query xmlns="urn:radargun:stages:query:3.0"
+               test-name="querying"
+               duration="${test.duration:10s}"
+               num-threads-per-node="1"
+               query-object-class="org.radargun.query.TextObject">
+            <conditions>
+                <!-- The conditions are ANDed -->
+                <any>
+                    <eq path="text" value="string Tiger" />
+                    <like path="text" value="%Sea%" />
+                </any>
+                <not>
+                    <eq path="text" value="string Seahorse"/>
+                </not>
+            </conditions>
+        </query>
+
+
+        <service-stop/>
+    </rg:scenario>
+    
+
+    <reports>
+        <reporter type="csv"/>
+        <reporter type="html"/>
+    </reports>
+
+</benchmark>

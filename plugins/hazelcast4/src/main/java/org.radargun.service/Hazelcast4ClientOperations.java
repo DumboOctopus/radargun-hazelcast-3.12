@@ -27,7 +27,8 @@ public class Hazelcast4ClientOperations implements BasicOperations, ConditionalO
       return new Cache<K, V>(service.<K, V>getMap(cacheName));
    }
 
-   protected interface HazelcastCache<K, V> extends BasicOperations.Cache<K, V>, ConditionalOperations.Cache<K, V> {}
+   protected interface HazelcastCache<K, V> extends BasicOperations.Cache<K, V>, ConditionalOperations.Cache<K, V> {
+   }
 
    protected static class Cache<K, V> implements HazelcastCache<K, V> {
       protected final IMap<K, V> map;
