@@ -76,10 +76,10 @@ public class Hazelcast4ClientService implements Lifecycle { //extends Hazelcast3
       //    set in radargun & set in client => radargun
       // same idea for servers
 
-      if(!groupName.equals(""))
+      if (!groupName.equals(""))
          clientConfig.setClusterName(groupName);
 
-      if(servers != null)
+      if (servers != null)
          clientConfig.getNetworkConfig().addAddress(servers);
 
       hazelcastInstance = HazelcastClient.newHazelcastClient(clientConfig);
@@ -146,9 +146,9 @@ public class Hazelcast4ClientService implements Lifecycle { //extends Hazelcast3
       return map;
    }
 
-    @ProvidesTrait
-    public Hazelcast4Queryable createQueryable() {
-       return new Hazelcast4Queryable(this);
-    }
+   @ProvidesTrait
+   public Hazelcast4Queryable createQueryable() {
+      return new Hazelcast4Queryable(this);
+   }
 
 }

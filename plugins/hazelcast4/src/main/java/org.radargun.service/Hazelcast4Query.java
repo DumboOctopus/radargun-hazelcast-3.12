@@ -164,13 +164,15 @@ public class Hazelcast4Query implements Query {
 
    public interface Accessor {
       Object get(Object o);
+
       Class<?> getReturnType();
    }
 
    public static class FieldAccessor implements Accessor, Externalizable {
       public Field f;
 
-      public FieldAccessor() {}
+      public FieldAccessor() {
+      }
 
       private FieldAccessor(Field f) {
          this.f = f;
@@ -211,7 +213,8 @@ public class Hazelcast4Query implements Query {
    public static class MethodAccessor implements Accessor, Externalizable {
       public Method m;
 
-      public MethodAccessor() {}
+      public MethodAccessor() {
+      }
 
       private MethodAccessor(Method m) {
          this.m = m;
@@ -252,7 +255,8 @@ public class Hazelcast4Query implements Query {
    public static class ChainedAccessor implements Accessor, Externalizable {
       public List<Accessor> accessors;
 
-      public ChainedAccessor() {}
+      public ChainedAccessor() {
+      }
 
       public ChainedAccessor(List<Accessor> list) {
          this.accessors = list;

@@ -1,10 +1,8 @@
 package org.radargun.service;
 
 
-
 import java.util.Comparator;
 
-import com.hazelcast.query.PagingPredicate;
 import com.hazelcast.query.Predicate;
 import com.hazelcast.query.Predicates;
 import org.radargun.logging.Log;
@@ -17,7 +15,7 @@ import org.radargun.traits.Queryable;
  * and because of an existing bug, also without filtering:
  * http://stackoverflow.com/questions/29481508/hazelcast-aggregations-api-results-in-classcastexception-with-predicates
  * Additionaly, indexes are not used in aggregations.
- *
+ * <p>
  * Since hazelcast 4 changed the paths of the imports, we have to copy paste these hazelcast 3.6 classes instead of reusing
  * them directly.
  *
@@ -201,7 +199,7 @@ public class Hazelcast4Queryable implements Queryable {
          }
 
          String[] stringProjection = null;
-         if(projection != null){
+         if (projection != null) {
             stringProjection = new String[projection.length];
             for (int i = 0; i < projection.length; i++) {
                stringProjection[i] = projection[i].attribute;
@@ -213,4 +211,3 @@ public class Hazelcast4Queryable implements Queryable {
 
 
 }
-*/
