@@ -1,15 +1,24 @@
 package org.radargun.service;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.XmlClientConfigBuilder;
+import com.hazelcast.cluster.Member;
 import com.hazelcast.config.IndexType;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.HazelcastInstanceAware;
+import com.hazelcast.core.IExecutorService;
 import com.hazelcast.map.IMap;
+import com.hazelcast.map.LocalMapStats;
 import org.radargun.Service;
 import org.radargun.config.DefinitionElement;
 import org.radargun.config.Property;
@@ -149,6 +158,50 @@ public class Hazelcast4ClientService implements Lifecycle { //extends Hazelcast3
    @ProvidesTrait
    public Hazelcast4Queryable createQueryable() {
       return new Hazelcast4Queryable(this);
+   }
+
+   public Map<Member, LocalMapStats> getStats() {
+      GatherStatisticsCallable callable = new GatherStatisticsCallable(mapName);
+
+      IExecutorService executorService = hazelcastInstance.getExecutorService("default");
+
+      Map<Member, Future<LocalMapStats>> results = executorService.submitToAllMembers(callable);
+      Map<Member, LocalMapStats> statsMap = new HashMap<>();
+
+      for(Map.Entry<Member, Future<LocalMapStats>> entry: results.entrySet()){
+         try {
+            statsMap.put(entry.getKey(), entry.getValue().get());
+         } catch(Exception e){
+            e.printStackTrace();
+         }
+      }
+
+      return statsMap;
+   }
+
+   // this class's call method will get executed
+   // on the server
+   public class GatherStatisticsCallable implements Callable<LocalMapStats>, HazelcastInstanceAware, Serializable {
+      private static final long serialVersionUID = 1;
+
+      private transient HazelcastInstance hazelcastInstance; // transient so it doesn't get serialized if we send this object
+      private String mapName;
+
+      public GatherStatisticsCallable(String mapName) {
+         this.mapName = mapName;
+      }
+
+
+      @Override
+      public void setHazelcastInstance(HazelcastInstance hazelcastInstance) {
+         this.hazelcastInstance = hazelcastInstance;
+      }
+
+      @Override
+      public LocalMapStats call() throws Exception {
+         IMap map = this.hazelcastInstance.getMap(this.mapName);
+         return map.getLocalMapStats();
+      }
    }
 
 }
